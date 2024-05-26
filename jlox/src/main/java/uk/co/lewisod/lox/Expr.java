@@ -3,6 +3,15 @@ package uk.co.lewisod.lox;
 import java.util.List;
 
 public abstract class Expr {
+  public interface Visitor<R> {
+    R visitBinaryExpr(Binary expr);
+    R visitGroupingExpr(Grouping expr);
+    R visitLiteralExpr(Literal expr);
+    R visitUnaryExpr(Unary expr);
+  }
+
+  public abstract <R> R accept(Visitor<R> visitor);
+
   public static class Binary extends Expr {
     final Expr left;
     final Token operator;
@@ -13,6 +22,11 @@ public abstract class Expr {
       this.operator = operator;
       this.right = right;
     }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitBinaryExpr(this);
+    }
   }
 
   public static class Grouping extends Expr {
@@ -21,6 +35,11 @@ public abstract class Expr {
     public Grouping(Expr expression) {
       this.expression = expression;
     }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitGroupingExpr(this);
+    }
   }
 
   public static class Literal extends Expr {
@@ -28,6 +47,11 @@ public abstract class Expr {
 
     public Literal(Object value) {
       this.value = value;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitLiteralExpr(this);
     }
   }
 
@@ -38,6 +62,11 @@ public abstract class Expr {
     public Unary(Token operator, Expr right) {
       this.operator = operator;
       this.right = right;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitUnaryExpr(this);
     }
   }
 

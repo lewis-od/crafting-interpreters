@@ -30,6 +30,13 @@ public class GenerateAst {
             writer.println();
             writer.println("public abstract class " + baseName + " {");
 
+            defineVisitor(writer, baseName, types);
+
+            // Base accept method, overridden by type classes
+            writer.println();
+            writer.println("  public abstract <R> R accept(Visitor<R> visitor);");
+            writer.println();
+
             for (var type : types) {
                 var parts = type.split(":");
                 var className = parts[0].trim();
@@ -60,6 +67,22 @@ public class GenerateAst {
             writer.println("      this." + name + " = " + name + ";");
         }
         writer.println("    }");
+
+        writer.println();
+        writer.println("    @Override");
+        writer.println("    public <R> R accept(Visitor<R> visitor) {");
+        writer.println("      return visitor.visit" + className + baseName + "(this);");
+        writer.println("    }");
+
+        writer.println("  }");
+    }
+
+    public static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
+        writer.println("  public interface Visitor<R> {");
+        for (var type : types) {
+            var typeName = type.split(":")[0].trim();
+            writer.println("    R visit" + typeName + baseName + "(" + typeName + " " + baseName.toLowerCase() + ");");
+        }
         writer.println("  }");
     }
 }
