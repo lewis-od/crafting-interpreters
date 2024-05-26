@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GenerateAst" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="uk.co.lewisod.lox.tool.GenerateAst" />
+    <module name="jlox" />
+    <option name="PROGRAM_PARAMETERS" value="./src/main/java/uk/co/lewisod/lox" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="uk.co.lewisod.lox.tool.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
