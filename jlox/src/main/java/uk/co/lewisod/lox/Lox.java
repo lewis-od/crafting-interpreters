@@ -2,14 +2,11 @@ package uk.co.lewisod.lox;
 
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Lox {
     private static boolean hadError = false;
@@ -51,14 +48,14 @@ public class Lox {
 
     private static void run(String source) {
         var scanner = new Scanner(source);
-        var tokens = scanner.tokens().toList();
+        var tokens = scanner.scanTokens();
 
         for (var token : tokens) {
             System.out.println(token);
         }
     }
 
-    private static void error(int line, String message) {
+    public static void error(int line, String message) {
         report(line, "", message);
     }
 
