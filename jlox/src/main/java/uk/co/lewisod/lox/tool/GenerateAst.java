@@ -14,6 +14,7 @@ public class GenerateAst {
         }
         var outputDirectory = args[0];
         defineAst(outputDirectory, "Expr", List.of(
+                "Assign   : Token name, Expr value",
                 "Binary   : Expr left, Token operator, Expr right",
                 "Grouping : Expr expression",
                 "Literal  : Object value",

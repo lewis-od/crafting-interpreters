@@ -68,9 +68,29 @@ public class Parser {
         return new Stmt.Expression(value);
     }
 
-    // expression -> equality;
+    // expression -> assignment ;
     private Expr expression() {
-        return equality();
+        return assignment();
+    }
+
+    // assignment -> IDENTIFIER "=" assignment | equality;
+    private Expr assignment() {
+        var expr = equality();
+
+        if (match(EQUAL)) {
+            var equals = previous();
+            var value = assignment();
+
+            if (expr instanceof  Expr.Variable variable) {
+                var name = variable.name;
+                return new Expr.Assign(name, value);
+            }
+
+            // Report but don't throw - no need to panic and synchronize
+            error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     // equality -> comparison ( ( "!=" | "==" ) comparison )* ;
