@@ -1,5 +1,6 @@
 package uk.co.lewisod.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static uk.co.lewisod.lox.TokenType.*;
@@ -14,12 +15,33 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    public Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    // program   -> statement* EOF ;
+    public List<Stmt> parse() {
+        var statements = new ArrayList<Stmt>();
+        while (!isAtEnd()) {
+            statements.add(statement());
         }
+        return statements;
+    }
+
+    // statement -> exprStmt | printStmt ;
+    private Stmt statement() {
+        if (match(PRINT)) return printStatement();
+        return expressionStatement();
+    }
+
+    // printStmt -> "print" expression ";" ;
+    private Stmt printStatement() {
+        var value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    // exprStmt  -> expression ";" ;
+    private Stmt expressionStatement() {
+        var value = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(value);
     }
 
     // expression -> equality;
