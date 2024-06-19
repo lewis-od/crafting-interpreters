@@ -1,6 +1,7 @@
 package uk.co.lewisod.lox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static uk.co.lewisod.lox.TokenType.*;
@@ -48,8 +49,9 @@ public class Parser {
         return new Stmt.Var(name, initializer);
     }
 
-    // statement -> exprStmt | ifStmt | printStmt | whileStmt | block ;
+    // statement -> exprStmt | forStmt | ifStmt | printStmt | whileStmt | block ;
     private Stmt statement() {
+        if (match(FOR)) return forStatement();
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
         if (match(WHILE)) return whileStatement();
@@ -62,6 +64,48 @@ public class Parser {
         var value = expression();
         consume(SEMICOLON, "Expect ';' after value.");
         return new Stmt.Print(value);
+    }
+
+    // forStmt -> "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+    public Stmt forStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+        Stmt initializer;
+        if (match(SEMICOLON)) {
+            initializer = null;
+        } else if (match(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        Expr condition = null;
+        if (!check(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+
+        Expr increment = null;
+        if (!check(RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(RIGHT_PAREN, "Expect ')' after clauses.");
+
+        Stmt body = statement();
+
+        // Desugar the for loop into a while loop
+        if (increment != null) {
+            // Place the increment statement at the end of the loop body
+            body = new Stmt.Block(List.of(body, new Stmt.Expression(increment)));
+        }
+        if (condition == null) condition = new Expr.Literal(true);
+        Stmt loop = new Stmt.While(condition, body);
+        if (initializer != null) {
+            // Run the initializer before the while loop
+            loop = new Stmt.Block(List.of(initializer, loop));
+        }
+
+        return loop;
     }
 
     // ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
