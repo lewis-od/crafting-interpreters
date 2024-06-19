@@ -1,5 +1,8 @@
 package uk.co.lewisod.lox;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AstPrinter implements Expr.Visitor<String> {
 
     public String print(Expr expression) {
@@ -14,6 +17,14 @@ public class AstPrinter implements Expr.Visitor<String> {
     @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+    }
+
+    @Override
+    public String visitCallExpr(Expr.Call expr) {
+        var exprs = new ArrayList<Expr>();
+        exprs.add(expr.callee);
+        exprs.addAll(expr.arguments);
+        return parenthesize("call", exprs.toArray(new Expr[0]));
     }
 
     @Override

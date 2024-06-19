@@ -9,6 +9,7 @@ public abstract class Expr {
   public interface Visitor<R> {
     R visitAssignExpr(Assign expr);
     R visitBinaryExpr(Binary expr);
+    R visitCallExpr(Call expr);
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitLogicalExpr(Logical expr);
@@ -47,6 +48,23 @@ public abstract class Expr {
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.visitBinaryExpr(this);
+    }
+  }
+
+  public static class Call extends Expr {
+    final Expr callee;
+    final Token paren;
+    final List<Expr> arguments;
+
+    public Call(Expr callee, Token paren, List<Expr> arguments) {
+      this.callee = callee;
+      this.paren = paren;
+      this.arguments = arguments;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitCallExpr(this);
     }
   }
 

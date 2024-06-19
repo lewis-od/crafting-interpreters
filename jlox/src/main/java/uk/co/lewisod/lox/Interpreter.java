@@ -1,9 +1,32 @@
 package uk.co.lewisod.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    private Environment environment = new Environment();
+    // Fixed reference to global scope
+    public final Environment globals = new Environment();
+    // Value changes as we enter and exit scopes
+    private Environment environment = globals;
+
+    public Interpreter() {
+        globals.define("clock", new LoxCallable() {
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                return (double)System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
+    }
 
     public void interpret(List<Stmt> statements) {
         try {
@@ -25,7 +48,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
-    private void executeBlock(List<Stmt> statements, Environment environment) {
+    void executeBlock(List<Stmt> statements, Environment environment) {
         var previousEnv = this.environment;
         try {
             this.environment = environment;
@@ -40,6 +63,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionStmt(Stmt.Function stmt) {
+        var function = new LoxFunction(stmt);
+        environment.define(stmt.name.lexeme, function);
         return null;
     }
 
@@ -149,6 +179,29 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             case EQUAL_EQUAL -> isEqual(left, right);
             default -> throw new IllegalStateException("Unknown binary expression encountered");
         };
+    }
+
+    @Override
+    public Object visitCallExpr(Expr.Call expr) {
+        var callee = evaluate(expr.callee);
+
+        var arguments = new ArrayList<>();
+        for (var argument : expr.arguments) {
+            arguments.add(evaluate(argument));
+        }
+
+        if (callee instanceof LoxCallable callable) {
+            return callCallable(expr.paren, callable, arguments);
+        }
+
+        throw new RuntimeError(expr.paren, "Can only call functions and classes");
+    }
+
+    private Object callCallable(Token paren, LoxCallable callable, List<Object> arguments) {
+        if (arguments.size() != callable.arity()) {
+            throw new RuntimeError(paren, "Expected " + callable.arity() + " arguments but got " + arguments.size() + ".");
+        }
+        return callable.call(this, arguments);
     }
 
     @Override

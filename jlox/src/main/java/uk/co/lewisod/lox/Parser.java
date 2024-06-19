@@ -1,7 +1,6 @@
 package uk.co.lewisod.lox;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static uk.co.lewisod.lox.TokenType.*;
@@ -25,9 +24,10 @@ public class Parser {
         return statements;
     }
 
-    // declaration -> varDeclaration | statement ;
+    // declaration -> funDeclaration | varDeclaration | statement ;
     private Stmt declaration() {
         try {
+            if (match(FUN)) return function("function");
             if (match(VAR)) return varDeclaration();
             return statement();
         } catch (ParseError error) {
@@ -35,6 +35,32 @@ public class Parser {
             return null;
         }
     }
+
+    // funDeclaration -> "fun" function ;
+    // function -> IDENTIFIER "(" parameters? ")" block ;
+    private Stmt.Function function(String kind) {
+        var name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+
+        var parameters = new ArrayList<Token>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    // Not throwing exception as syntax is still valid - error is due to language limitations
+                    error(peek(), "Can't have more then 255 parameters.");
+                }
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+
+        // Consuming the left brace here as opposed to in block() let's us report a more useful error message,
+        // since we know we're in the middle of a function declaration
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        var body = block();
+        return new Stmt.Function(name, parameters, body);
+    }
+
 
     // varDeclaration -> "var" IDENTIFIER ( "=" expression )? ";" ;
     private Stmt varDeclaration() {
@@ -243,15 +269,43 @@ public class Parser {
         return expr;
     }
 
-    // unary -> ( "!" | "-" ) unary | primary ;
+    // unary -> ( "!" | "-" ) unary | call ;
     private Expr unary() {
         if (match(BANG, MINUS)) {
             var operator = previous();
             var operand = unary();
             return new Expr.Unary(operator, operand);
         }
-        return primary();
+        return call();
     }
+
+    // call -> primary ( "(" arguments? ")" )* ;
+    private Expr call() {
+        Expr expr = primary();
+
+        while (true) {
+            if (match(LEFT_PAREN)) {
+                var arguments = new ArrayList<Expr>();
+                if (!check(RIGHT_PAREN)) {
+                    do {
+                        if (arguments.size() >= 255) {
+                            // Not throwing exception as syntax is still valid - error is due to language limitations
+                            error(peek(), "Can't have more than 255 arguments");
+                        }
+                        arguments.add(expression());
+                    } while (match(COMMA));
+                }
+                var paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+                expr = new Expr.Call(expr, paren, arguments);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    // arguments -> expression ( "," expression )* ;
 
     // primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
     private Expr primary() {
