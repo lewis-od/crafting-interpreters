@@ -18,8 +18,12 @@ public class LoxFunction implements LoxCallable {
             environment.define(param.lexeme, argument);
         }
 
-        interpreter.executeBlock(declaration.body, environment);
-        return null; // Return values will come later
+        try {
+            interpreter.executeBlock(declaration.body, environment);
+        } catch (Return returnValue) {
+            return returnValue.value;
+        }
+        return null;
     }
 
     @Override
