@@ -4,14 +4,16 @@ import java.util.List;
 
 public class LoxFunction implements LoxCallable {
     private final Stmt.Function declaration;
+    private final Environment closure;
 
-    public LoxFunction(Stmt.Function declaration) {
+    public LoxFunction(Stmt.Function declaration, Environment closure) {
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        var environment = new Environment(interpreter.globals);
+        var environment = new Environment(closure);
         for (var i = 0; i < declaration.params.size(); i++) {
             var param = declaration.params.get(i);
             var argument = arguments.get(i);
