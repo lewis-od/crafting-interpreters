@@ -55,13 +55,14 @@ public class Lox {
     private static void run(String source) {
         var scanner = new Scanner(source);
         var tokens = scanner.scanTokens();
+
         var parser = new Parser(tokens);
         var statements = parser.parse();
-
         if (hadError) return;
 
         var resolver = new Resolver(interpreter);
         resolver.resolve(statements);
+        if (hadError) return;
 
         interpreter.interpret(statements);
     }
