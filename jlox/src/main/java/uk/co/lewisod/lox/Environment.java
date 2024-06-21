@@ -43,4 +43,25 @@ public class Environment {
 
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
+
+    public Object getAt(int distance, String lexeme) {
+        var targetEnvironment = ancestor(distance);
+        return targetEnvironment.values.get(lexeme);
+    }
+
+    public void assignAt(int distance, Token name, Object value) {
+        var targetEnvironment = ancestor(distance);
+        targetEnvironment.values.put(name.lexeme, value);
+    }
+
+    private Environment ancestor(int distance) {
+        var environment = this;
+        for (var i = 0; i < distance; i++) {
+            if (environment == null) {
+                throw new IllegalStateException("Attempt to access parent of global environment");
+            }
+            environment = environment.enclosing;
+        }
+        return environment;
+    }
 }

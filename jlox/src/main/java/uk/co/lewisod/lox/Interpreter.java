@@ -1,13 +1,17 @@
 package uk.co.lewisod.lox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // Fixed reference to global scope
     public final Environment globals = new Environment();
     // Value changes as we enter and exit scopes
     private Environment environment = globals;
+    // How many environments deep we should look when resolving a local var
+    private final Map<Expr, Integer> locals = new HashMap<>();
 
     public Interpreter() {
         globals.define("clock", new LoxCallable() {
@@ -131,7 +135,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         var value = evaluate(expr.value);
-        environment.assign(expr.name, value);
+
+        var distance = locals.get(expr);
+        if (distance == null) {
+            globals.assign(expr.name, value);
+        } else {
+            environment.assignAt(distance, expr.name, value);
+        }
+
         return value;
     }
 
@@ -249,7 +260,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        return lookupVariable(expr.name, expr);
+    }
+
+    private Object lookupVariable(Token name, Expr expr) {
+        var distance = locals.get(expr);
+        if (distance == null) {
+            return globals.get(name);
+        }
+        // Assuming the variable is in the specified environment - relies on the fact the Resolver
+        // did it's job properly
+        return environment.getAt(distance, name.lexeme);
     }
 
     private Object evaluate(Expr expr) {
@@ -282,5 +303,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (operand.equals(0.0)) {
             throw new RuntimeError(operator, "Cannot divide by zero");
         }
+    }
+
+    public void resolve(Expr expr, int depth) {
+        locals.put(expr, depth);
     }
 }
