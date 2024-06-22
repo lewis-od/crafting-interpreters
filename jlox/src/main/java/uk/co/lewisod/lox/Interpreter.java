@@ -230,6 +230,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        var object = evaluate(expr.object);
+        if (object instanceof LoxInstance instance) {
+            return instance.get(expr.name);
+        }
+
+        throw new RuntimeError(expr.name, "Only instances of classes have properties.");
+    }
+
+    @Override
     public Object visitGroupingExpr(Expr.Grouping expr) {
         return evaluate(expr.expression);
     }

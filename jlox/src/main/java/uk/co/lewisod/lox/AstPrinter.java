@@ -1,7 +1,6 @@
 package uk.co.lewisod.lox;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AstPrinter implements Expr.Visitor<String> {
 
@@ -25,6 +24,11 @@ public class AstPrinter implements Expr.Visitor<String> {
         exprs.add(expr.callee);
         exprs.addAll(expr.arguments);
         return parenthesize("call", exprs.toArray(new Expr[0]));
+    }
+
+    @Override
+    public String visitGetExpr(Expr.Get expr) {
+        return parenthesize("get " + expr.name.lexeme, expr.object);
     }
 
     @Override

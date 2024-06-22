@@ -306,7 +306,7 @@ public class Parser {
         return call();
     }
 
-    // call -> primary ( "(" arguments? ")" )* ;
+    // call -> primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
     private Expr call() {
         Expr expr = primary();
 
@@ -324,6 +324,9 @@ public class Parser {
                 }
                 var paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
                 expr = new Expr.Call(expr, paren, arguments);
+            } else if (match(DOT)) {
+                var name = consume(IDENTIFIER, "Expected property name after '.'");
+                expr = new Expr.Get(expr, name);
             } else {
                 break;
             }
