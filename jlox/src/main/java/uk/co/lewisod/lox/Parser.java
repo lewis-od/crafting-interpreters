@@ -208,7 +208,7 @@ public class Parser {
         return assignment();
     }
 
-    // assignment -> IDENTIFIER "=" assignment | logic_or;
+    // assignment -> ( call "." )? IDENTIFIER "=" assignment | logic_or;
     private Expr assignment() {
         var expr = or();
 
@@ -219,6 +219,8 @@ public class Parser {
             if (expr instanceof  Expr.Variable variable) {
                 var name = variable.name;
                 return new Expr.Assign(name, value);
+            } else if (expr instanceof Expr.Get get) {
+                return new Expr.Set(get.object, get.name, value);
             }
 
             // Report but don't throw - no need to panic and synchronize

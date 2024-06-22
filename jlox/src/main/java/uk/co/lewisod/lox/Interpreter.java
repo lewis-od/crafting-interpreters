@@ -240,6 +240,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitSetExpr(Expr.Set expr) {
+        var object = evaluate(expr.object);
+
+        if (object instanceof LoxInstance instance) {
+            var value = evaluate(expr.value);
+            instance.set(expr.name, value);
+            return value;
+        }
+
+        throw new RuntimeError(expr.name, "Only instances of classes have fields.");
+    }
+
+    @Override
     public Object visitGroupingExpr(Expr.Grouping expr) {
         return evaluate(expr.expression);
     }
