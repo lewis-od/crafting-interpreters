@@ -2,7 +2,7 @@
   <configuration default="false" name="Lox | Source File" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="uk.co.lewisod.lox.Lox" />
     <module name="jlox" />
-    <option name="PROGRAM_PARAMETERS" value="../examples/closures.lox" />
+    <option name="PROGRAM_PARAMETERS" value="../examples/classes.lox" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="uk.co.lewisod.lox.*" />

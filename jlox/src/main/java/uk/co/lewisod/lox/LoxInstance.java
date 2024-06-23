@@ -21,9 +21,10 @@ public class LoxInstance {
             return fields.get(name.lexeme);
         }
 
-        var method = klass.findMethod(name.lexeme);
-        return method.orElseThrow(
-                () -> new RuntimeError(name, "Undefined property " + name.lexeme + "."));
+        var foundMethod = klass.findMethod(name.lexeme);
+        return foundMethod
+                .map(method -> method.bind(this))
+                .orElseThrow(() -> new RuntimeError(name, "Undefined property " + name.lexeme + "."));
     }
 
     public void set(Token name, Object value) {
