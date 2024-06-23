@@ -76,6 +76,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         environment.define(stmt.name.lexeme, null);
 
+        if (stmt.superclass != null) {
+            environment = new Environment(environment);
+            environment.define("super", superclass);
+        }
+
         var methods = new HashMap<String, LoxFunction>();
         for (var method : stmt.methods) {
             var function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
@@ -83,6 +88,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         var klass = new LoxClass(stmt.name.lexeme, (LoxClass)superclass, methods);
+
+        if (superclass != null) {
+            environment = environment.enclosing;
+        }
+
         environment.assign(stmt.name, klass);
         return null;
     }
@@ -265,6 +275,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         throw new RuntimeError(expr.name, "Only instances of classes have fields.");
+    }
+
+    @Override
+    public Object visitSuperExpr(Expr.Super expr) {
+        var distance = locals.get(expr);
+        var superclass = (LoxClass) environment.getAt(distance, "super");
+        // Environment containing "this" always 1 up from env containing "super"
+        var object = (LoxInstance) environment.getAt(distance - 1, "this");
+        var method = superclass.findMethod(expr.method.lexeme);
+        return method
+                .orElseThrow(() -> new RuntimeError(expr.method, "Undefined property '" + expr.method.lexeme + "."))
+                .bind(object);
     }
 
     @Override

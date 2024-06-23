@@ -12,6 +12,7 @@ public abstract class Expr {
     R visitCallExpr(Call expr);
     R visitGetExpr(Get expr);
     R visitSetExpr(Set expr);
+    R visitSuperExpr(Super expr);
     R visitThisExpr(This expr);
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
@@ -100,6 +101,21 @@ public abstract class Expr {
     @Override
     public <R> R accept(Visitor<R> visitor) {
       return visitor.visitSetExpr(this);
+    }
+  }
+
+  public static class Super extends Expr {
+    final Token keyword;
+    final Token method;
+
+    public Super(Token keyword, Token method) {
+      this.keyword = keyword;
+      this.method = method;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitSuperExpr(this);
     }
   }
 
