@@ -20,12 +20,17 @@ public class LoxClass implements LoxCallable {
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        return new LoxInstance(this);
+        var instance = new LoxInstance(this);
+        findMethod("init")
+                .ifPresent(init -> init.bind(instance).call(interpreter, arguments));
+        return instance;
     }
 
     @Override
     public int arity() {
-        return 0;
+        return findMethod("init")
+                .map(LoxFunction::arity)
+                .orElse(0);
     }
 
     public Optional<LoxFunction> findMethod(String name) {
