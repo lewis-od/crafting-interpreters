@@ -37,9 +37,15 @@ public class Parser {
         }
     }
 
-    // classDeclaration -> "class" IDENTIFIER "{" function* "}" ;
+    // classDeclaration -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
     private Stmt classDeclaration() {
         var name = consume(IDENTIFIER, "Expect class name.");
+
+        Expr.Variable superclass = null;
+        if (match(LESS)) {
+            consume(IDENTIFIER, "Expect superclass name.");
+            superclass = new Expr.Variable(previous());
+        }
 
         consume(LEFT_BRACE, "Expect '{' before class body.");
         var methods = new ArrayList<Stmt.Function>();
@@ -48,7 +54,7 @@ public class Parser {
         }
         consume(RIGHT_BRACE, "Expect '}' after class body.");
 
-        return new Stmt.Class(name, methods);
+        return new Stmt.Class(name, superclass, methods);
     }
 
     // funDeclaration -> "fun" function ;
@@ -309,6 +315,7 @@ public class Parser {
     }
 
     // call -> primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
+    // arguments -> expression ( "," expression )* ;
     private Expr call() {
         Expr expr = primary();
 
@@ -336,8 +343,6 @@ public class Parser {
 
         return expr;
     }
-
-    // arguments -> expression ( "," expression )* ;
 
     // primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
     private Expr primary() {
