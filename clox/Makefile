@@ -3,7 +3,7 @@
 build: ./bin/clox
 
 ./bin/clox:
-	clang src/main.c -o ./bin/clox
+	clang -Wall src/*.c -o ./bin/clox
 
 clean:
 	@rm -f ./bin/clox
