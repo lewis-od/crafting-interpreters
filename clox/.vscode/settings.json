@@ -54,6 +54,7 @@
         "cstdbool": "c",
         "typeinfo": "c",
         "chunk.h": "c",
-        "common.h": "c"
+        "common.h": "c",
+        "value.h": "c"
     }
 }
