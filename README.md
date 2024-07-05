@@ -2,5 +2,5 @@ Code from https://craftinginterpreters.com/
 
 
 ## Progress
-Currently up to https://craftinginterpreters.com/chunks-of-bytecode.html#constants
+Currently up to https://craftinginterpreters.com/compiling-expressions.html
 
