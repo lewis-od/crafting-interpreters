@@ -55,6 +55,7 @@
         "typeinfo": "c",
         "chunk.h": "c",
         "common.h": "c",
-        "value.h": "c"
+        "value.h": "c",
+        "scanner.h": "c"
     }
 }
