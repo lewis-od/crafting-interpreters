@@ -2,5 +2,5 @@ Code from https://craftinginterpreters.com/
 
 
 ## Progress
-Currently up to https://craftinginterpreters.com/types-of-values.html
+Currently up to https://craftinginterpreters.com/strings.html
 
