@@ -58,6 +58,7 @@
         "value.h": "c",
         "scanner.h": "c",
         "object.h": "c",
-        "memory.h": "c"
+        "memory.h": "c",
+        "table.h": "c"
     }
 }
