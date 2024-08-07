@@ -1,0 +1,8 @@
+var value = 9;
+
+if (value == 10) {
+  print "Value is 10";
+} else {
+  print "Value is not 10";
+}
+
