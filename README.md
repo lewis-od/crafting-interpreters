@@ -2,5 +2,5 @@ Code from https://craftinginterpreters.com/
 
 
 ## Progress
-Currently up to https://craftinginterpreters.com/local-variables.html
+Currently up to https://craftinginterpreters.com/jumping-back-and-forth.html#logical-operators
 
