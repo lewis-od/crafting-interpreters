@@ -10,6 +10,12 @@ impl OpCode {
     fn disassemble(&self, chunk: &Chunk, offset: usize) {
         print!("{:04} ", offset);
 
+        if offset > 0 && chunk.lines[offset] == chunk.lines[offset - 1] {
+            print!("   | ");
+        } else {
+            print!("{:04} ", chunk.lines[offset]);
+        }
+
         match self {
             OpCode::Return => OpCode::simple_instruction("RETURN"),
             OpCode::Constant(index) => {
@@ -30,6 +36,7 @@ impl OpCode {
 
 pub struct Chunk {
     code: Vec<OpCode>,
+    lines: Vec<usize>,
     constants: Vec<Value>,
 }
 
@@ -37,12 +44,14 @@ impl Chunk {
     pub fn new() -> Chunk {
         Chunk {
             code: vec![],
+            lines: vec![],
             constants: vec![],
         }
     }
 
-    pub fn write_code(&mut self, code: OpCode) {
+    pub fn write_code(&mut self, code: OpCode, line: usize) {
         self.code.push(code);
+        self.lines.push(line);
     }
 
     pub fn add_constant(&mut self, value: Value) -> usize {
