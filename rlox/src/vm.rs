@@ -16,6 +16,25 @@ pub struct VM<'a> {
     pub debug: bool,
 }
 
+macro_rules! pop {
+    ($stack:expr) => {
+        match $stack.pop() {
+            Some(operand) => operand,
+            None => return InterpretResult::RuntimeError,
+        }
+    };
+}
+
+macro_rules! binary_op {
+    ($stack:expr, $op:tt) => {
+        {
+            let b = pop!($stack);
+            let a = pop!($stack);
+            $stack.push(a $op b);
+        }
+    };
+}
+
 impl<'a> VM<'a> {
     pub fn new(chunk: &'a Chunk) -> VM {
         VM {
@@ -39,11 +58,16 @@ impl<'a> VM<'a> {
                 print!("\n");
                 instruction.disassemble(self.chunk, self.ip);
             }
+
             match instruction {
                 OpCode::Constant(constant_index) => {
                     let value = self.chunk.get_constant(constant_index);
                     self.stack.push(value);
                 }
+                OpCode::Add => binary_op!(self.stack, +),
+                OpCode::Subtract => binary_op!(self.stack, -),
+                OpCode::Multiply => binary_op!(self.stack, *),
+                OpCode::Divide => binary_op!(self.stack, /),
                 OpCode::Negate => match self.stack.pop() {
                     Some(value) => self.stack.push(-value),
                     None => return InterpretResult::RuntimeError,

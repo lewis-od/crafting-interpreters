@@ -4,6 +4,10 @@ use crate::value::{print_value, Value};
 #[derive(Clone, Copy)]
 pub enum OpCode {
     Constant(usize),
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
     Negate,
     Return,
 }
@@ -20,6 +24,10 @@ impl OpCode {
 
         match self {
             OpCode::Return => OpCode::simple_instruction("RETURN"),
+            OpCode::Add => OpCode::simple_instruction("ADD"),
+            OpCode::Subtract => OpCode::simple_instruction("SUBTRACT"),
+            OpCode::Multiply => OpCode::simple_instruction("MULTIPLY"),
+            OpCode::Divide => OpCode::simple_instruction("DIVIDE"),
             OpCode::Negate => OpCode::simple_instruction("NEGATE"),
             OpCode::Constant(index) => {
                 OpCode::constant_instruction("CONSTANT", chunk, index.clone())
