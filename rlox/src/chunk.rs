@@ -4,6 +4,7 @@ use crate::value::{print_value, Value};
 #[derive(Clone, Copy)]
 pub enum OpCode {
     Constant(usize),
+    Negate,
     Return,
 }
 
@@ -19,6 +20,7 @@ impl OpCode {
 
         match self {
             OpCode::Return => OpCode::simple_instruction("RETURN"),
+            OpCode::Negate => OpCode::simple_instruction("NEGATE"),
             OpCode::Constant(index) => {
                 OpCode::constant_instruction("CONSTANT", chunk, index.clone())
             }

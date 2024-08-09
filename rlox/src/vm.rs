@@ -1,5 +1,5 @@
 use crate::{
-    chunk::Chunk,
+    chunk::{Chunk, OpCode},
     value::{print_value, Value},
 };
 
@@ -40,12 +40,15 @@ impl<'a> VM<'a> {
                 instruction.disassemble(self.chunk, self.ip);
             }
             match instruction {
-                crate::chunk::OpCode::Constant(constant_index) => {
+                OpCode::Constant(constant_index) => {
                     let value = self.chunk.get_constant(constant_index);
                     self.stack.push(value);
-                    self.ip += 1;
                 }
-                crate::chunk::OpCode::Return => {
+                OpCode::Negate => match self.stack.pop() {
+                    Some(value) => self.stack.push(-value),
+                    None => return InterpretResult::RuntimeError,
+                },
+                OpCode::Return => {
                     if let Some(final_value) = self.stack.pop() {
                         print_value(&final_value);
                         print!("\n");
@@ -53,6 +56,7 @@ impl<'a> VM<'a> {
                     return InterpretResult::Ok;
                 }
             }
+            self.ip += 1;
         }
     }
 }
