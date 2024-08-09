@@ -1,13 +1,14 @@
-use crate::value::Value;
+use crate::value::{print_value, Value};
 
 #[repr(u8)]
+#[derive(Clone, Copy)]
 pub enum OpCode {
     Constant(usize),
     Return,
 }
 
 impl OpCode {
-    fn disassemble(&self, chunk: &Chunk, offset: usize) {
+    pub fn disassemble(&self, chunk: &Chunk, offset: usize) {
         print!("{:04} ", offset);
 
         if offset > 0 && chunk.lines[offset] == chunk.lines[offset - 1] {
@@ -30,7 +31,9 @@ impl OpCode {
 
     fn constant_instruction(name: &str, chunk: &Chunk, index: usize) {
         let value = chunk.constants[index];
-        println!("{:16} {:4} {}", name, index, value);
+        print!("{:16} {:4} '", name, index);
+        print_value(&value);
+        print!("'\n");
     }
 }
 
@@ -59,11 +62,19 @@ impl Chunk {
         self.constants.len() - 1
     }
 
+    pub fn get_constant(&self, index: usize) -> Value {
+        self.constants[index]
+    }
+
     pub fn disassemble(&self, name: &str) {
         println!("== {} ==", name);
 
         for (offset, instruction) in self.code.iter().enumerate() {
             instruction.disassemble(self, offset);
         }
+    }
+
+    pub fn get_instruction(&self, index: usize) -> OpCode {
+        self.code[index]
     }
 }

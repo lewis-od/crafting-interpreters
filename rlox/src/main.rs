@@ -1,7 +1,10 @@
 mod chunk;
 mod value;
+mod vm;
 
 use chunk::{Chunk, OpCode};
+use std;
+use vm::VM;
 
 fn main() {
     let mut chunk = Chunk::new();
@@ -11,4 +14,13 @@ fn main() {
 
     chunk.write_code(OpCode::Return, 123);
     chunk.disassemble("test chunk");
+
+    let mut vm = VM::new(&chunk);
+    vm.debug = true;
+    let exit_code = match vm.run() {
+        vm::InterpretResult::Ok => 0,
+        vm::InterpretResult::CompileError => 1,
+        vm::InterpretResult::RuntimeError => 2,
+    };
+    std::process::exit(exit_code);
 }
