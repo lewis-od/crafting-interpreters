@@ -1,5 +1,6 @@
 use crate::{
     chunk::{Chunk, OpCode},
+    compiler::compile,
     value::{print_value, Value},
 };
 
@@ -43,6 +44,11 @@ impl<'a> VM<'a> {
             stack: vec![],
             debug: false,
         }
+    }
+
+    pub fn interpret(&mut self, line: String) -> InterpretResult {
+        compile(line);
+        InterpretResult::Ok
     }
 
     pub fn run(&mut self) -> InterpretResult {
