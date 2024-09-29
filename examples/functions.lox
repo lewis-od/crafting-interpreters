@@ -5,3 +5,10 @@ fun sayHi(first, last) {
 var firstName = "Lewis";
 sayHi(firstName, "O'Driscoll");
 
+fun add(a, b) {
+  return a + b;
+}
+
+var result = add(10, 5);
+print result;
+
